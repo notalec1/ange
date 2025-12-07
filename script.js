@@ -4,21 +4,21 @@
    and a comma , after it (except the last one).
    ============================================== */
 const participants = [
-    "Person 1",
-    "Person 2",
-    "Person 3",
-    "Person 4",
-    "Person 5",
-    "Person 6",
-    "Person 7",
-    "Person 8",
-    "Person 9",
-    "Person 10",
-    "Person 11",
-    "Person 12",
-    "Person 13",
-    "Person 14",
-    "Person 15"
+    "Teta Tera",
+    "Tante Nounou",
+    "Fadi Abou Jaoude",
+    "Hoda Abou Jaoude",
+    "Neo Abou Jaoude",
+    "Noa Abou Jaoude",
+    "Georges Abou Jaoude",
+    "Nawal Eid",
+    "Assaad Eid",
+    "Chris Eid",
+    "Eliott Eid",
+    "Nada Ghorayeb",
+    "Alain Ghorayeb",
+    "Alec Ghorayeb",
+    "Guest"
 ];
 
 // ------------------------------------------------
