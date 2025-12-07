@@ -1,6 +1,5 @@
 /* ==============================================
    EDIT YOUR PARTICIPANTS HERE
-   Make sure to keep the quotes and commas!
    ============================================== */
 const participants = [
     "Person 1",
@@ -21,13 +20,32 @@ const participants = [
 ];
 
 // ------------------------------------------------
-// LOGIC CODE (Do not edit below unless you know JS)
+// LOGIC CODE
 // ------------------------------------------------
 
-let assignments = {};
-let taken = new Set();
+// Check if we are in "Participant Mode" or "Landing Mode"
+window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const encodedData = urlParams.get('data');
 
-// Shuffle function (Fisher-Yates)
+    if (encodedData) {
+        // Participant Mode: We have data to show
+        document.getElementById('view-match-btn').classList.remove('hidden');
+        document.getElementById('view-match-btn').textContent = "Tap to Reveal Your Match!";
+    } else {
+        // Landing Mode: Show option to become Host
+        document.getElementById('error-msg').classList.remove('hidden');
+    }
+};
+
+function showAdminPanel() {
+    document.getElementById('landing-screen').classList.add('hidden');
+    document.getElementById('admin-screen').classList.remove('hidden');
+}
+
+// ------------------------------------------------
+// ADMIN: GENERATE LINKS
+// ------------------------------------------------
 function shuffle(array) {
     let currentIndex = array.length, randomIndex;
     while (currentIndex != 0) {
@@ -38,12 +56,12 @@ function shuffle(array) {
     return array;
 }
 
-// Generate valid pairs (no self-assignments)
-function generatePairs() {
+function generateLinks() {
     let gifters = [...participants];
     let receivers = [...participants];
     let valid = false;
 
+    // Shuffle until no one has themselves
     while (!valid) {
         receivers = shuffle([...participants]);
         valid = true;
@@ -55,83 +73,64 @@ function generatePairs() {
         }
     }
 
-    // Map the results
-    assignments = {};
+    const listDiv = document.getElementById('links-list');
+    listDiv.innerHTML = '';
+    listDiv.classList.remove('hidden');
+
+    const baseUrl = window.location.href.split('?')[0];
+
     gifters.forEach((gifter, index) => {
-        assignments[gifter] = receivers[index];
+        const receiver = receivers[index];
+        
+        // Create a simple JSON object and encode it to Base64
+        // This hides the result from plain sight in the URL bar
+        const pairData = JSON.stringify({ s: gifter, t: receiver });
+        const encoded = btoa(pairData); 
+        
+        const personalLink = `${baseUrl}?data=${encoded}`;
+
+        const item = document.createElement('div');
+        item.className = 'link-item';
+        item.innerHTML = `
+            <h4>For: ${gifter}</h4>
+            <input type="text" value="${personalLink}" readonly>
+            <button class="copy-btn" onclick="copyToClipboard(this)">Copy Link</button>
+        `;
+        listDiv.appendChild(item);
     });
-
-    return true;
 }
 
-function startNewGame() {
-    generatePairs();
-    document.getElementById('setup-screen').classList.add('hidden');
-    document.getElementById('selection-screen').classList.remove('hidden');
-    renderButtons();
-}
-
-function renderButtons() {
-    const container = document.getElementById('name-list');
-    container.innerHTML = '';
+function copyToClipboard(btn) {
+    const input = btn.previousElementSibling;
+    input.select();
+    input.setSelectionRange(0, 99999); // For mobile devices
+    navigator.clipboard.writeText(input.value);
     
-    participants.forEach(name => {
-        const btn = document.createElement('button');
-        btn.textContent = name;
-        btn.className = 'name-btn';
-        if (taken.has(name)) {
-            btn.classList.add('disabled');
-        }
-        btn.onclick = () => selectName(name);
-        container.appendChild(btn);
-    });
+    const originalText = btn.textContent;
+    btn.textContent = "Copied!";
+    setTimeout(() => btn.textContent = originalText, 2000);
+}
 
-    if (taken.size === participants.length) {
-        document.getElementById('selection-screen').classList.add('hidden');
-        document.getElementById('end-screen').classList.remove('hidden');
+// ------------------------------------------------
+// PARTICIPANT: REVEAL GIFT
+// ------------------------------------------------
+function revealGift() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const encodedData = urlParams.get('data');
+
+    if (!encodedData) return;
+
+    try {
+        // Decode the Base64 string
+        const jsonString = atob(encodedData);
+        const data = JSON.parse(jsonString);
+
+        document.getElementById('landing-screen').classList.add('hidden');
+        document.getElementById('reveal-screen').classList.remove('hidden');
+        
+        document.getElementById('santa-name').textContent = data.s; // The "Santa" (User)
+        document.getElementById('target-name').textContent = data.t; // The "Target"
+    } catch (e) {
+        alert("Invalid link! Please ask the host to send it again.");
     }
-}
-
-function selectName(name) {
-    document.getElementById('selection-screen').classList.add('hidden');
-    document.getElementById('reveal-screen').classList.remove('hidden');
-    
-    document.getElementById('santa-name').textContent = name;
-    
-    // Reset the gift box state
-    const giftBox = document.querySelector('.gift-box');
-    const targetName = document.getElementById('target-name');
-    const instruction = document.querySelector('.click-instruction');
-    const doneBtn = document.getElementById('done-btn');
-    
-    // Store current santa for logic
-    giftBox.dataset.santa = name;
-    
-    targetName.classList.add('hidden-target');
-    targetName.textContent = assignments[name];
-    instruction.style.display = 'block';
-    doneBtn.classList.add('hidden');
-}
-
-function revealTarget() {
-    const targetName = document.getElementById('target-name');
-    const instruction = document.querySelector('.click-instruction');
-    const doneBtn = document.getElementById('done-btn');
-
-    if (targetName.classList.contains('hidden-target')) {
-        targetName.classList.remove('hidden-target');
-        instruction.style.display = 'none';
-        doneBtn.classList.remove('hidden');
-    }
-}
-
-function resetScreen() {
-    const giftBox = document.querySelector('.gift-box');
-    const currentSanta = giftBox.dataset.santa;
-    
-    taken.add(currentSanta); // Mark this person as done
-    
-    document.getElementById('reveal-screen').classList.add('hidden');
-    document.getElementById('selection-screen').classList.remove('hidden');
-    renderButtons();
 }
