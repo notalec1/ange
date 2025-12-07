@@ -1,5 +1,7 @@
 /* ==============================================
    EDIT YOUR PARTICIPANTS HERE
+   Make sure every name has quotes "" around it
+   and a comma , after it (except the last one).
    ============================================== */
 const participants = [
     "Person 1",
@@ -23,18 +25,24 @@ const participants = [
 // LOGIC CODE
 // ------------------------------------------------
 
-// Check if we are in "Participant Mode" or "Landing Mode"
 window.onload = function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const encodedData = urlParams.get('data');
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const encodedData = urlParams.get('data');
 
-    if (encodedData) {
-        // Participant Mode: We have data to show
-        document.getElementById('view-match-btn').classList.remove('hidden');
-        document.getElementById('view-match-btn').textContent = "Tap to Reveal Your Match!";
-    } else {
-        // Landing Mode: Show option to become Host
-        document.getElementById('error-msg').classList.remove('hidden');
+        if (encodedData) {
+            // If there is a code, we are in Participant Mode
+            // 1. Show the reveal button
+            const btn = document.getElementById('view-match-btn');
+            if(btn) btn.classList.remove('hidden');
+
+            // 2. Hide the host section so participants don't get confused
+            const hostSec = document.getElementById('host-section');
+            if(hostSec) hostSec.classList.add('hidden');
+        } 
+        // If no code, Host Section remains visible by default (HTML default)
+    } catch (err) {
+        console.error("Error loading page:", err);
     }
 };
 
@@ -61,6 +69,12 @@ function generateLinks() {
     let receivers = [...participants];
     let valid = false;
 
+    // Safety check to prevent infinite loops if array is too small
+    if (participants.length < 2) {
+        alert("You need at least 2 people to play!");
+        return;
+    }
+
     // Shuffle until no one has themselves
     while (!valid) {
         receivers = shuffle([...participants]);
@@ -77,23 +91,22 @@ function generateLinks() {
     listDiv.innerHTML = '';
     listDiv.classList.remove('hidden');
 
+    // Get current clean URL (removes any existing ?data=...)
     const baseUrl = window.location.href.split('?')[0];
 
     gifters.forEach((gifter, index) => {
         const receiver = receivers[index];
         
-        // Create a simple JSON object and encode it to Base64
-        // This hides the result from plain sight in the URL bar
+        // Encode data
         const pairData = JSON.stringify({ s: gifter, t: receiver });
         const encoded = btoa(pairData); 
-        
         const personalLink = `${baseUrl}?data=${encoded}`;
 
         const item = document.createElement('div');
         item.className = 'link-item';
         item.innerHTML = `
             <h4>For: ${gifter}</h4>
-            <input type="text" value="${personalLink}" readonly>
+            <input type="text" value="${personalLink}" readonly onclick="this.select()">
             <button class="copy-btn" onclick="copyToClipboard(this)">Copy Link</button>
         `;
         listDiv.appendChild(item);
@@ -103,12 +116,17 @@ function generateLinks() {
 function copyToClipboard(btn) {
     const input = btn.previousElementSibling;
     input.select();
-    input.setSelectionRange(0, 99999); // For mobile devices
-    navigator.clipboard.writeText(input.value);
+    input.setSelectionRange(0, 99999); // Mobile fix
     
-    const originalText = btn.textContent;
-    btn.textContent = "Copied!";
-    setTimeout(() => btn.textContent = originalText, 2000);
+    navigator.clipboard.writeText(input.value).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = "Copied!";
+        btn.style.backgroundColor = "#4CAF50";
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.backgroundColor = "#333";
+        }, 2000);
+    });
 }
 
 // ------------------------------------------------
@@ -121,16 +139,16 @@ function revealGift() {
     if (!encodedData) return;
 
     try {
-        // Decode the Base64 string
         const jsonString = atob(encodedData);
         const data = JSON.parse(jsonString);
 
         document.getElementById('landing-screen').classList.add('hidden');
         document.getElementById('reveal-screen').classList.remove('hidden');
         
-        document.getElementById('santa-name').textContent = data.s; // The "Santa" (User)
-        document.getElementById('target-name').textContent = data.t; // The "Target"
+        document.getElementById('santa-name').textContent = data.s; 
+        document.getElementById('target-name').textContent = data.t; 
     } catch (e) {
         alert("Invalid link! Please ask the host to send it again.");
+        console.error(e);
     }
 }
