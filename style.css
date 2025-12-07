@@ -83,7 +83,10 @@ button:hover {
     border-radius: 5px;
     border-left: 4px solid var(--christmas-green);
 }
-
+/* Keep your existing style.css */
+.hidden {
+    display: none !important;
+}
 .link-item h4 { margin: 0 0 5px 0; color: #333; }
 .link-item input { width: 100%; padding: 5px; margin-bottom: 5px; }
 .copy-btn {
