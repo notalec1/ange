@@ -17,8 +17,7 @@ const participants = [
     "Eliott Eid",
     "Nada Ghorayeb",
     "Alain Ghorayeb",
-    "Alec Ghorayeb",
-    "Guest"
+    "Alec Ghorayeb"
 ];
 
 // ------------------------------------------------
