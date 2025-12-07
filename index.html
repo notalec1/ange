@@ -10,7 +10,6 @@
 <body>
 
     <div class="snowflakes" aria-hidden="true">
-        <!-- Snow animation elements -->
         <div class="snowflake">❅</div><div class="snowflake">❅</div>
         <div class="snowflake">❅</div><div class="snowflake">❅</div>
         <div class="snowflake">❅</div><div class="snowflake">❅</div>
@@ -21,39 +20,43 @@
     <div class="container">
         <header>
             <h1>🎅 Secret Santa 🎄</h1>
-            <p>Pass the device around. No peeking at others!</p>
         </header>
 
-        <!-- Initial Start Screen -->
-        <div id="setup-screen">
-            <button id="start-btn" onclick="startNewGame()">Shuffle & Start</button>
+        <!-- LANDING SCREEN -->
+        <div id="landing-screen">
+            <p>Welcome to the Remote Secret Santa!</p>
+            <p class="small-text">If you received a link, your name should appear below.</p>
+            <button id="view-match-btn" class="hidden" onclick="revealGift()">Open My Gift Assignment</button>
+            
+            <div id="error-msg" class="hidden">
+                <p>⚠️ No secret code found in this link.</p>
+                <p>Are you the host?</p>
+                <button onclick="showAdminPanel()">I am the Host (Generate Links)</button>
+            </div>
         </div>
 
-        <!-- Selection Screen -->
-        <div id="selection-screen" class="hidden">
-            <h2>Who are you?</h2>
-            <div id="name-list" class="grid-container"></div>
-        </div>
-
-        <!-- Reveal Screen -->
+        <!-- PARTICIPANT REVEAL SCREEN -->
         <div id="reveal-screen" class="hidden">
-            <h2>Hello, <span id="santa-name"></span>!</h2>
+            <h2>Hello, <span id="santa-name">...</span>!</h2>
             <p>You are the Secret Santa for:</p>
             
-            <div class="gift-box" onclick="revealTarget()">
-                <div class="click-instruction">Tap to open</div>
-                <div id="target-name" class="hidden-target">???</div>
+            <div class="gift-box">
+                <div id="target-name">???</div>
             </div>
-
-            <button id="done-btn" class="hidden" onclick="resetScreen()">OK, I got it!</button>
+            
+            <p class="note">Take a screenshot so you don't forget!</p>
         </div>
 
-        <!-- Finished Screen -->
-        <div id="end-screen" class="hidden">
-            <h2>🎉 All done! 🎉</h2>
-            <p>Merry Christmas!</p>
-            <button onclick="location.reload()">Reset Entire Game</button>
+        <!-- ADMIN/HOST SCREEN -->
+        <div id="admin-screen" class="hidden">
+            <h2>Host Dashboard</h2>
+            <p>Click below to shuffle names and generate unique links for everyone. Send each person their specific link.</p>
+            
+            <button onclick="generateLinks()">🔀 Shuffle & Generate Links</button>
+            
+            <div id="links-list" class="links-container hidden"></div>
         </div>
+
     </div>
 
     <script src="script.js"></script>
