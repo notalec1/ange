@@ -25,13 +25,16 @@
         <!-- LANDING SCREEN -->
         <div id="landing-screen">
             <p>Welcome to the Remote Secret Santa!</p>
-            <p class="small-text">If you received a link, your name should appear below.</p>
-            <button id="view-match-btn" class="hidden" onclick="revealGift()">Open My Gift Assignment</button>
             
-            <div id="error-msg" class="hidden">
-                <p>⚠️ No secret code found in this link.</p>
-                <p>Are you the host?</p>
-                <button onclick="showAdminPanel()">I am the Host (Generate Links)</button>
+            <!-- Participant Button (Hidden by default) -->
+            <button id="view-match-btn" class="hidden" onclick="revealGift()">🎁 Open My Gift Assignment</button>
+            
+            <!-- Host Section (Visible by default now) -->
+            <div id="host-section">
+                <p class="small-text">If you received a link, your button should appear above.</p>
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+                <p><strong>Are you the host?</strong></p>
+                <button onclick="showAdminPanel()">Create New Game (Shuffle)</button>
             </div>
         </div>
 
@@ -44,17 +47,18 @@
                 <div id="target-name">???</div>
             </div>
             
-            <p class="note">Take a screenshot so you don't forget!</p>
+            <p class="note">📸 Take a screenshot so you don't forget!</p>
         </div>
 
         <!-- ADMIN/HOST SCREEN -->
         <div id="admin-screen" class="hidden">
             <h2>Host Dashboard</h2>
-            <p>Click below to shuffle names and generate unique links for everyone. Send each person their specific link.</p>
+            <p>Click below to shuffle names and generate unique links.</p>
             
             <button onclick="generateLinks()">🔀 Shuffle & Generate Links</button>
             
             <div id="links-list" class="links-container hidden"></div>
+            <button onclick="location.reload()" style="background:#888; margin-top:20px;">← Go Back</button>
         </div>
 
     </div>
